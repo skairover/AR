@@ -1,318 +1,254 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Web AR</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aframe/1.4.0/aframe.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ar.js/2.2.2/ar-nft.js"></script>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-        }
-        
-        .ui-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-            z-index: 999;
-        }
-        
-        .instructions {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            pointer-events: auto;
-        }
-        
-        .marker-link {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: #4CAF50;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            pointer-events: auto;
-        }
-        
-        .marker-link:hover {
-            background: #45a049;
-        }
-        
-        .status {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 14px;
-            pointer-events: auto;
-        }
-        
-        .marker-found {
-            background: rgba(76, 175, 80, 0.9) !important;
-        }
-        
-        .controls {
-            position: absolute;
-            top: 50%;
-            left: 20px;
-            transform: translateY(-50%);
-            pointer-events: auto;
-        }
-        
-        .control-btn {
-            display: block;
-            background: rgba(255,255,255,0.9);
-            border: none;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .control-btn:hover {
-            background: white;
-        }
-        
-        #loadingScreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #1a1a1a;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #333;
-            border-top: 4px solid #4CAF50;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simple Web AR</title>
+
+  <!-- A-Frame & AR.js -->
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar-nft.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    .ui-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    .instructions {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      pointer-events: auto;
+    }
+
+    .marker-link {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: #4CAF50;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      pointer-events: auto;
+    }
+
+    .marker-link:hover {
+      background: #45a049;
+    }
+
+    .status {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      pointer-events: auto;
+    }
+
+    .marker-found {
+      background: rgba(76, 175, 80, 0.9) !important;
+    }
+
+    .controls {
+      position: absolute;
+      top: 50%;
+      left: 20px;
+      transform: translateY(-50%);
+      pointer-events: auto;
+    }
+
+    .control-btn {
+      display: block;
+      background: rgba(255,255,255,0.9);
+      border: none;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .control-btn:hover {
+      background: white;
+    }
+
+    #loadingScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #1a1a1a;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #333;
+      border-top: 4px solid #4CAF50;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div id="loadingScreen">
-        <div class="spinner"></div>
-        <h2>Loading AR Experience...</h2>
-        <p>Please wait while we initialize the camera</p>
-    </div>
-    
-    <!-- UI Overlay -->
-    <div class="ui-overlay">
-        <div class="instructions">
-            <h3>📱 AR Instructions</h3>
-            <p><strong>Steps:</strong></p>
-            <ol>
-                <li>Download and print the marker below</li>
-                <li>Point your camera at the printed marker</li>
-                <li>See 3D objects appear on the marker!</li>
-            </ol>
-            <p><small>💡 Keep the marker flat and well-lit</small></p>
-        </div>
-        
-        <a href="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/HIRO.jpg" 
-           target="_blank" class="marker-link">
-            📥 Download HIRO Marker
-        </a>
-        
-        <div class="status" id="arStatus">
-            AR Ready - Point at marker
-        </div>
-        
-        <div class="controls">
-            <button class="control-btn" onclick="changeColor()">🎨 Change Colors</button>
-            <button class="control-btn" onclick="addObject()">➕ Add Object</button>
-            <button class="control-btn" onclick="toggleAnimation()">⏯️ Toggle Animation</button>
-        </div>
-    </div>
-    
-    <!-- AR Scene -->
-    <a-scene
-        embedded
-        loading-screen="enabled: false"
-        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
-        renderer="logarithmicDepthBuffer: true; colorManagement: true; sortObjects: true;"
-        vr-mode-ui="enabled: false"
-        gesture-detector
-        id="scene">
-        
-        <a-assets>
-            <a-mixin id="cube-mixin"
-                     geometry="primitive: box; width: 0.5; height: 0.5; depth: 0.5"
-                     material="shader: standard; roughness: 0.3; metalness: 0.2">
-            </a-mixin>
-        </a-assets>
-        
-        <a-marker 
-            preset="hiro" 
-            id="markerA"
-            registerevents>
-            
-            <!-- Main rotating cube -->
-            <a-box 
-                id="mainCube"
-                position="0 0.25 0" 
-                rotation="45 45 45"
-                scale="0.8 0.8 0.8"
-                color="#FF6B6B"
-                animation="property: rotation; to: 45 405 45; loop: true; dur: 4000; easing: linear"
-                shadow="cast: true">
-            </a-box>
-            
-            <!-- Orbiting sphere -->
-            <a-entity id="orbiter" 
-                      animation="property: rotation; to: 0 360 0; loop: true; dur: 6000; easing: linear">
-                <a-sphere 
-                    position="1 0.5 0" 
-                    radius="0.2" 
-                    color="#4ECDC4"
-                    shadow="cast: true">
-                </a-sphere>
-            </a-entity>
-            
-            <!-- Floating text -->
-            <a-text 
-                id="arText"
-                value="Hello AR!" 
-                position="0 1.2 0" 
-                align="center"
-                color="#2C3E50"
-                font="roboto"
-                animation="property: position; to: 0 1.5 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutQuad">
-            </a-text>
-            
-            <!-- Ground plane -->
-            <a-plane 
-                position="0 0 0" 
-                rotation="-90 0 0" 
-                width="2" 
-                height="2" 
-                color="#95E1D3" 
-                opacity="0.7"
-                shadow="receive: true">
-            </a-plane>
-            
-        </a-marker>
-        
-        <a-entity camera></a-entity>
-    </a-scene>
+  <!-- Loading Screen -->
+  <div id="loadingScreen">
+    <div class="spinner"></div>
+    <h2>Loading AR Experience...</h2>
+    <p>Please wait while we initialize the camera</p>
+  </div>
 
-    <script>
-        let isAnimationPaused = false;
-        let objectCount = 2; // We start with cube and sphere
-        const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'];
-        let colorIndex = 0;
-        
-        // Wait for scene to load
-        document.addEventListener('DOMContentLoaded', function() {
-            const scene = document.querySelector('#scene');
-            const loadingScreen = document.getElementById('loadingScreen');
-            const arStatus = document.getElementById('arStatus');
-            const marker = document.querySelector('#markerA');
-            
-            // Hide loading screen when AR starts
-            scene.addEventListener('renderstart', function() {
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                }, 2000);
-            });
-            
-            // Marker events
-            marker.addEventListener('markerFound', function() {
-                arStatus.textContent = '✅ Marker detected!';
-                arStatus.classList.add('marker-found');
-                console.log('Marker found!');
-            });
-            
-            marker.addEventListener('markerLost', function() {
-                arStatus.textContent = '🔍 Looking for marker...';
-                arStatus.classList.remove('marker-found');
-                console.log('Marker lost');
-            });
-        });
-        
-        // Interactive functions
-        function changeColor() {
-            const cube = document.querySelector('#mainCube');
-            const sphere = document.querySelector('#orbiter a-sphere');
-            
-            colorIndex = (colorIndex + 1) % colors.length;
-            cube.setAttribute('color', colors[colorIndex]);
-            sphere.setAttribute('color', colors[(colorIndex + 1) % colors.length]);
-        }
-        
-        function addObject() {
-            if (objectCount >= 8) {
-                alert('Maximum objects reached!');
-                return;
-            }
-            
-            const marker = document.querySelector('#markerA');
-            const randomX = (Math.random() - 0.5) * 2;
-            const randomZ = (Math.random() - 0.5) * 2;
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            
-            const newObject = document.createElement('a-cylinder');
-            newObject.setAttribute('position', `${randomX} 0.3 ${randomZ}`);
-            newObject.setAttribute('radius', '0.1');
-            newObject.setAttribute('height', '0.6');
-            newObject.setAttribute('color', randomColor);
-            newObject.setAttribute('shadow', 'cast: true');
-            newObject.setAttribute('animation', 'property: rotation; to: 0 360 0; loop: true; dur: 3000');
-            
-            marker.appendChild(newObject);
-            objectCount++;
-        }
-        
-        function toggleAnimation() {
-            const animatedElements = document.querySelectorAll('[animation]');
-            
-            animatedElements.forEach(el => {
-                const anim = el.components.animation;
-                if (anim) {
-                    if (isAnimationPaused) {
-                        anim.resumeAnimation();
-                    } else {
-                        anim.pauseAnimation();
-                    }
-                }
-            });
-            
-            isAnimationPaused = !isAnimationPaused;
-        }
-    </script>
-</body>
-</html>
+  <!-- UI Overlay -->
+  <div class="ui-overlay">
+    <div class="instructions">
+      <h3>📱 AR Instructions</h3>
+      <ol>
+        <li>Download and print the marker below</li>
+        <li>Point your camera at the printed marker</li>
+        <li>See 3D objects appear on the marker!</li>
+      </ol>
+      <p><small>💡 Keep the marker flat and well-lit</small></p>
+    </div>
+
+    <a href="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/HIRO.jpg" 
+       target="_blank" class="marker-link">
+      📥 Download HIRO Marker
+    </a>
+
+    <div class="status" id="arStatus">
+      AR Ready - Point at marker
+    </div>
+
+    <div class="controls">
+      <button class="control-btn" onclick="changeColor()">🎨 Change Colors</button>
+      <button class="control-btn" onclick="addObject()">➕ Add Object</button>
+      <button class="control-btn" onclick="toggleAnimation()">⏯️ Toggle Animation</button>
+    </div>
+  </div>
+
+  <!-- AR Scene -->
+  <a-scene
+    embedded
+    loading-screen="enabled: false"
+    arjs="sourceType: webcam; debugUIEnabled: false;"
+    renderer="logarithmicDepthBuffer: true; colorManagement: true;"
+    vr-mode-ui="enabled: false"
+    id="scene">
+
+    <a-assets>
+      <a-mixin id="cube-mixin"
+               geometry="primitive: box; width: 0.5; height: 0.5; depth: 0.5"
+               material="shader: standard; roughness: 0.3; metalness: 0.2">
+      </a-mixin>
+    </a-assets>
+
+    <a-marker preset="hiro" id="markerA">
+
+      <a-box 
+        id="mainCube"
+        position="0 0.25 0" 
+        rotation="45 45 45"
+        scale="0.8 0.8 0.8"
+        color="#FF6B6B"
+        animation="property: rotation; to: 45 405 45; loop: true; dur: 4000; easing: linear"
+        shadow="cast: true">
+      </a-box>
+
+      <a-entity id="orbiter" 
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 6000; easing: linear">
+        <a-sphere 
+          position="1 0.5 0" 
+          radius="0.2" 
+          color="#4ECDC4"
+          shadow="cast: true">
+        </a-sphere>
+      </a-entity>
+
+      <a-text 
+        id="arText"
+        value="Hello AR!" 
+        position="0 1.2 0" 
+        align="center"
+        color="#2C3E50"
+        font="roboto"
+        animation="property: position; to: 0 1.5 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutQuad">
+      </a-text>
+
+      <a-plane 
+        position="0 0 0" 
+        rotation="-90 0 0" 
+        width="2" 
+        height="2" 
+        color="#95E1D3" 
+        opacity="0.7"
+        shadow="receive: true">
+      </a-plane>
+
+    </a-marker>
+
+    <a-entity camera></a-entity>
+  </a-scene>
+
+  <script>
+    let isAnimationPaused = false;
+    let objectCount = 2;
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'];
+    let colorIndex = 0;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const scene = document.querySelector('#scene');
+      const loadingScreen = document.getElementById('loadingScreen');
+      const arStatus = document.getElementById('arStatus');
+      const marker = document.querySelector('#markerA');
+
+      scene.addEventListener('renderstart', () => {
+        setTimeout(() => {
+          loadingScreen.style.display = 'none';
+        }, 2000);
+      });
+
+      marker.addEventListener('markerFound', () => {
+        arStatus.textContent = '✅ Marker detected!';
+        arStatus.classList.add('marker-found');
+      });
+
+      marker.addEventListener('markerLost', () => {
+        arStatus.textContent = '🔍 Looking for marker...';
+        arStatus.classList.remove('marker-found');
+      });
+    });
+
+    function changeColor() {
+      const cube = document.querySelector('#mainCube');
