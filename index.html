@@ -3,188 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My First Web AR</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ar.js/2.2.2/ar.min.js"></script>
+    <title>Camera Test for AR</title>
     <style>
         body {
             margin: 0;
+            padding: 20px;
             font-family: Arial, sans-serif;
-            overflow: hidden;
-        }
-        
-        .instructions {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0,0,0,0.8);
+            background: #1a1a1a;
             color: white;
-            padding: 15px;
-            border-radius: 8px;
-            max-width: 300px;
-            z-index: 100;
+            text-align: center;
         }
         
-        .marker-download {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
+        #video {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        button {
             background: #4CAF50;
             color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            z-index: 100;
-        }
-        
-        #arContainer {
-            width: 100vw;
-            height: 100vh;
-        }
-        
-        .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
+            border: none;
+            padding: 15px 30px;
             font-size: 18px;
-            z-index: 50;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .error {
+            border-left-color: #f44336;
+            background: rgba(244,67,54,0.1);
+        }
+        
+        .debug {
+            text-align: left;
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="instructions">
-        <h3>🚀 Your First AR Experience!</h3>
-        <p><strong>Instructions:</strong></p>
-        <ol>
-            <li>Allow camera access when prompted</li>
-            <li>Download the marker below</li>
-            <li>Print it or display on another screen</li>
-            <li>Point your camera at the marker</li>
-            <li>Watch the magic happen! ✨</li>
-        </ol>
+    <h1>🎥 Camera Test for Web AR</h1>
+    <p>Let's test if your browser can access the camera before we add AR features</p>
+    
+    <div id="status" class="status">
+        Click "Start Camera" to begin
     </div>
     
-    <div class="loading" id="loading">Loading AR... Please wait</div>
+    <button id="startBtn" onclick="startCamera()">Start Camera</button>
+    <button id="stopBtn" onclick="stopCamera()" disabled>Stop Camera</button>
     
-    <a href="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/HIRO.jpg" 
-       target="_blank" class="marker-download">
-        📥 Download AR Marker
-    </a>
+    <video id="video" autoplay muted playsinline style="display: none;"></video>
     
-    <div id="arContainer">
-        <a-scene
-            arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
-            renderer="logarithmicDepthBuffer: true; precision: medium;"
-            vr-mode-ui="enabled: false"
-            gesture-detector
-            id="scene">
-            
-            <!-- Asset management -->
-            <a-assets>
-                <a-box id="boxTemplate" 
-                       geometry="width: 1; height: 1; depth: 1" 
-                       material="color: #4CC3D9; opacity: 0.8">
-                </a-box>
-            </a-assets>
-            
-            <!-- AR Marker -->
-            <a-marker 
-                preset="hiro" 
-                id="markerA"
-                raycaster="objects: .clickable"
-                emitevents="true"
-                cursor="fuse: false; rayOrigin: mouse">
-                
-                <!-- 3D Objects that appear on marker -->
-                <!-- Rotating cube -->
-                <a-box 
-                    position="0 0.5 0" 
-                    rotation="45 45 45"
-                    color="#4CC3D9"
-                    animation="property: rotation; to: 45 405 45; loop: true; dur: 4000"
-                    shadow="cast: true">
-                </a-box>
-                
-                <!-- Bouncing sphere -->
-                <a-sphere 
-                    position="-1 0.5 0" 
-                    radius="0.3" 
-                    color="#EF2D5E"
-                    animation="property: position; to: -1 1.5 0; dir: alternate; loop: true; dur: 2000"
-                    shadow="cast: true">
-                </a-sphere>
-                
-                <!-- Spinning cone -->
-                <a-cone 
-                    position="1 0.5 0" 
-                    radius-bottom="0.3" 
-                    height="1" 
-                    color="#FFC65D"
-                    animation="property: rotation; to: 0 360 0; loop: true; dur: 3000"
-                    shadow="cast: true">
-                </a-cone>
-                
-                <!-- Interactive text -->
-                <a-text 
-                    value="Hello AR World!" 
-                    position="0 2 0" 
-                    align="center"
-                    color="#000"
-                    animation="property: scale; to: 1.2 1.2 1.2; dir: alternate; loop: true; dur: 1500">
-                </a-text>
-                
-                <!-- Ground plane with shadow -->
-                <a-plane 
-                    position="0 0 0" 
-                    rotation="-90 0 0" 
-                    width="4" 
-                    height="4" 
-                    color="#7BC8A4" 
-                    opacity="0.5"
-                    shadow="receive: true">
-                </a-plane>
-            </a-marker>
-            
-            <!-- Camera -->
-            <a-entity camera></a-entity>
-        </a-scene>
+    <div class="debug" id="debug">
+        <strong>Debug Info:</strong><br>
+        <span id="debugInfo">Waiting for camera test...</span>
+    </div>
+    
+    <div style="margin-top: 30px;">
+        <h3>Troubleshooting:</h3>
+        <ul style="text-align: left; max-width: 500px; margin: 0 auto;">
+            <li>Make sure you're on <strong>HTTPS</strong> (URL starts with https://)</li>
+            <li>Look for camera icon in address bar and click "Allow"</li>
+            <li>Try different browsers (Chrome works best)</li>
+            <li>Don't use in-app browsers (Instagram, Facebook, etc.)</li>
+            <li>Some corporate networks block camera access</li>
+        </ul>
     </div>
 
     <script>
-        // Wait for AR.js to load
-        document.addEventListener('DOMContentLoaded', function() {
-            const scene = document.querySelector('#scene');
-            const loading = document.getElementById('loading');
+        let stream = null;
+        const video = document.getElementById('video');
+        const status = document.getElementById('status');
+        const debugInfo = document.getElementById('debugInfo');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        
+        // Update debug info
+        function updateDebug() {
+            const info = [];
+            info.push(`Protocol: ${window.location.protocol}`);
+            info.push(`Host: ${window.location.host}`);
+            info.push(`User Agent: ${navigator.userAgent.substring(0, 50)}...`);
+            info.push(`HTTPS: ${window.location.protocol === 'https:'}`);
+            info.push(`MediaDevices supported: ${!!navigator.mediaDevices}`);
+            info.push(`getUserMedia supported: ${!!navigator.mediaDevices?.getUserMedia}`);
+            debugInfo.innerHTML = info.join('<br>');
+        }
+        
+        function updateStatus(message, isError = false) {
+            status.textContent = message;
+            status.className = isError ? 'status error' : 'status';
+        }
+        
+        async function startCamera() {
+            try {
+                updateStatus('🔍 Requesting camera access...');
+                
+                // Check if getUserMedia is available
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error('getUserMedia is not supported by this browser');
+                }
+                
+                // Request camera access
+                const constraints = {
+                    video: { 
+                        facingMode: 'environment', // Back camera
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    },
+                    audio: false
+                };
+                
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                
+                // Success! Show video
+                video.srcObject = stream;
+                video.style.display = 'block';
+                video.play();
+                
+                updateStatus('✅ Camera access granted! Video stream active');
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                
+                // Log stream info
+                console.log('Stream tracks:', stream.getTracks());
+                
+            } catch (error) {
+                console.error('Camera error:', error);
+                
+                let errorMessage = '❌ Camera access failed: ';
+                if (error.name === 'NotAllowedError') {
+                    errorMessage += 'Permission denied. Please allow camera access and try again.';
+                } else if (error.name === 'NotFoundError') {
+                    errorMessage += 'No camera found on this device.';
+                } else if (error.name === 'NotSupportedError') {
+                    errorMessage += 'Camera not supported by this browser.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                updateStatus(errorMessage, true);
+            }
+        }
+        
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
             
-            // Hide loading when AR starts
-            scene.addEventListener('renderstart', function() {
-                loading.style.display = 'none';
-            });
+            video.srcObject = null;
+            video.style.display = 'none';
             
-            // Add some interactivity
-            const marker = document.querySelector('#markerA');
-            
-            marker.addEventListener('markerFound', function() {
-                console.log('🎯 Marker detected!');
-                // You could trigger sound effects, analytics, etc.
-            });
-            
-            marker.addEventListener('markerLost', function() {
-                console.log('❌ Marker lost');
-            });
-            
-            // Add click interactions to 3D objects
-            const box = document.querySelector('a-box');
-            box.addEventListener('click', function() {
-                // Change color on click
-                const colors = ['#4CC3D9', '#EF2D5E', '#FFC65D', '#7BC8A4'];
-                const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                this.setAttribute('color', randomColor);
-            });
-        });
+            updateStatus('Camera stopped');
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+        
+        // Initialize debug info
+        updateDebug();
+        
+        // Auto-start if URL has ?autostart parameter
+        if (window.location.search.includes('autostart')) {
+            setTimeout(startCamera, 1000);
+        }
     </script>
 </body>
-</html>
 </html>
